@@ -1,0 +1,12 @@
+{
+  "name": "vault-dweller",
+  "version": "0.0.1",
+  "description": "Obsidian vault agent for creating and managing an AI-assisted knowledge base and second brain",
+  "license": "MIT",
+  "author": "Cenron",
+  "private": true,
+  "type": "module",
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "^1.1.0"
+  }
+}
