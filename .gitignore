@@ -1,5 +1,8 @@
 .idea/
 
+# Private project notes
+.agents/lessons_learned.md
+
 # Installed dependencies and package-manager caches
 node_modules/
 .npm/
@@ -15,3 +18,6 @@ pnpm-debug.log*
 dist/
 coverage/
 *.tsbuildinfo
+
+# Pi project settings written by local installs
+settings.json
