@@ -205,7 +205,5 @@ This phase changes a real vault, so do it together with the vault agent.
 
 ## Related
 
-- Vault Dweller
-- Vault Dweller PRD: requirements and acceptance criteria
-- Vault Dweller Kanban
-- Design Principles
+- `docs/PRD.md`: requirements and acceptance criteria
+- `AGENTS.md`: working rules, design principles, and testing standards

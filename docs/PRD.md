@@ -4,11 +4,11 @@ Product requirements for Vault Dweller, a Pi package that turns an Obsidian vaul
 
 ## Problem
 
-This vault runs on prose. AGENTS.md, 16 skills in `.agents/skills/`, and 14 templates describe the structure, and rules like "keep navigation current" only hold when the model remembers them. It often doesn't.
+An agent-maintained Obsidian vault usually runs on prose. AGENTS.md, skills in `.agents/skills/`, and templates describe the structure, and rules like "keep navigation current" only hold when the model remembers them. It often doesn't.
 
-An inventory on 2026-10-09 found the drift that results:
+An inventory of one such vault on 2026-10-09 found the drift that results:
 
-- About 15 broken wikilinks, including `Book Club` and MOC links written as `MOC --` instead of `MOC —`.
+- About 15 broken wikilinks, including links to notes that were never created and MOC links written as `MOC --` instead of `MOC —`.
 - Template placeholders such as `Idea 1` leaking into real notes as broken links.
 - Project notes tagged `type/moc`.
 - No templates for projects, Kanban boards, PRDs, or decisions, even though skills say to read them.
@@ -35,8 +35,8 @@ Anyone running Pi with an Obsidian vault is the secondary user. The package shou
 
 - `/vault init` on an empty folder produces a vault that opens cleanly in Obsidian, with the daily note and templates wired up. Running it again changes nothing.
 - A capture → process → project → archive session in a sandbox vault leaves zero `broken-link` and `unregistered` findings.
-- `/vault health` on a copy of this vault reports the known broken links and placeholder leaks.
-- After migration, this vault loads with no duplicate-command or skill-collision warnings, and health is clean apart from ignored paths.
+- `/vault health` on a copy of an existing vault reports the known broken links and placeholder leaks.
+- After migration, the vault loads with no duplicate-command or skill-collision warnings, and health is clean apart from ignored paths.
 
 ## Non-goals
 
@@ -82,7 +82,7 @@ The package has five parts.
 
 **Gardening.** `/vault health` summarizes findings by check. `--fix` applies the safe fixes. The `vault-review` skill then works through orphans, unregistered notes, and stale statuses with me.
 
-**Migration.** I write this vault's config by hand from the preset and run init as a dry run, then apply. Generic skills move out of `.agents/skills`, health fixes go in, and the install switches to the git package.
+**Migration.** I write the existing vault's config by hand from the preset and run init as a dry run, then apply. Generic skills move out of `.agents/skills`, health fixes go in, and the install switches to the git package.
 
 ## Requirements and acceptance criteria
 
@@ -91,7 +91,7 @@ The package has five parts.
 - The extension finds the vault by walking up from the working directory to `.vault-dweller.json`. Outside a vault, only `/vault` exists, and nothing else is registered or printed.
 - An invalid config shows a warning naming the file and the first errors. The extension never loads a partial config.
 - Config paths can't escape the vault root. A root like `../..` is rejected.
-- `folders` and `hubs` are open records, so a vault can add `blog` or `lifestyle` hubs without code changes.
+- `folders` and `hubs` are open records, so a vault can add `blog` or `reading` hubs without code changes.
 
 ### Init
 
@@ -107,7 +107,7 @@ The package has five parts.
 
 ### Navigation behavior
 
-- A note's owning hub is its nearest ancestor folder note (`X/X.md`). This covers top-level hubs, projects, and nested hubs like Lifestyle/Career without extra config.
+- A note's owning hub is its nearest ancestor folder note (`X/X.md`). This covers top-level hubs, projects, and nested hubs like `Area/Topic/Topic.md` without extra config.
 - Hub section matching ignores case and whitespace, so existing hubs keep working. Tools never delete sections they don't recognize.
 - Registering a note never duplicates it. Each bullet is keyed by its first wikilink target, normalized for case and dash variants.
 - Every edit to a hub, MOC, or Maps sets `updated` to today.
@@ -163,7 +163,7 @@ These were verified against the installed pi-coding-agent 1.1.0 source on 2026-1
 - **Skill shadowing.** On a name collision, Pi keeps the first skill it discovers, and project `.agents/skills` load before package skills. Project-local `daily` and `tldr` skills can shadow package versions. Development testing therefore happens in an isolated sandbox vault, because skill discovery climbs to the git root.
 - **Frontmatter edits.** These need a round-trip YAML library. Pi's `parseFrontmatter` can only read. The package depends on `yaml` directly.
 - **File writes.** These go through `withFileMutationQueue`, which deadlocks if nested on the same path, so there's one read-modify-write per file per call.
-- **No build step.** Pi loads TypeScript through jiti. Tests use vitest. Coverage target is 80%, per Design Principles.
+- **No build step.** Pi loads TypeScript through jiti. Tests use vitest. Coverage target is 80%, per `AGENTS.md`.
 - **Licensing.** The Obsidian syntax skills, `json-canvas`, and `defuddle` appear to be third-party and carry no license metadata. They ship only if their license allows; otherwise the README documents how to install them.
 
 ## Agreed decisions
@@ -185,16 +185,13 @@ Implementation choices already settled:
 
 - Can the third-party skills be bundled, or only documented?
 - Does anything outside Pi still use `.agents/commands/daily.md` and `tldr.md`?
-- Should the existing vault's "New projects" prose section stay in Projects alongside Active, Parked, and Archived?
-- Should PRDs get their own tag, such as `type/prd`? This PRD follows the existing Pantry Memory precedent of `type/moc`.
+- Should extra prose sections in an existing Projects hub stay alongside Active, Parked, and Archived?
+- Should PRDs get their own tag, such as `type/prd`? Existing PRD notes are tagged `type/moc`.
 - Is the `agent_end` navigation reminder useful, or just noise? Try it in the sandbox before keeping it.
 - I'm assuming a tool registered during `session_start` is visible to the model in that same session. Verify this before building on it.
 - I'm assuming `createAgentSession` can run headless without an API key, which would make SDK smoke tests possible. Verify this too.
 
 ## Related
 
-- Vault Dweller: project note
-- Vault Dweller Kanban: phases and progress
-- Design Principles: code and testing standards for the package
-- Maps and Projects: the navigation this package encodes
-- MOC — Tech Stack
+- `docs/build-guide.md`: verified Pi facts and the phase-by-phase build plan
+- `AGENTS.md`: working rules, design principles, and testing standards
